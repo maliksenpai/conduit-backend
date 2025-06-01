@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Service
 public class UserService {
@@ -41,31 +42,33 @@ public class UserService {
     }
 
     public Optional<User> updateUser(User presentUser, User updatedUser) {
-        Optional<User> existingUser = userRepository.findById(presentUser.getId());
-        if (existingUser.isPresent()) {
-            if (updatedUser.getUsername() != null) {
-                presentUser.setUsername(updatedUser.getUsername());
-            }
-            if (updatedUser.getEmail() != null) {
-                Optional<User> userWithEmail = userRepository.findByEmail(updatedUser.getEmail());
-                if (userWithEmail.isPresent() && !userWithEmail.get().getId().equals(presentUser.getId())) {
+        return userRepository.findById(presentUser.getId())
+                .map(existingUser -> {
+                    updateFieldIfPresent(updatedUser.getUsername(), existingUser::setUsername);
+                    updateEmailIfValid(updatedUser.getEmail(), existingUser);
+                    updateFieldIfPresent(updatedUser.getPassword(),
+                            pwd -> existingUser.setPassword(encodePassword(pwd)));
+                    updateFieldIfPresent(updatedUser.getBio(), existingUser::setBio);
+                    updateFieldIfPresent(updatedUser.getImage(), existingUser::setImage);
+
+                    return userRepository.save(existingUser);
+                });
+    }
+
+    private <T> void updateFieldIfPresent(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+    private void updateEmailIfValid(String newEmail, User existingUser) {
+        if (newEmail != null && !newEmail.equals(existingUser.getEmail())) {
+            userRepository.findByEmail(newEmail).ifPresent(conflictUser -> {
+                if (!conflictUser.getId().equals(existingUser.getId())) {
                     throw new BadCredentialsException("Email already exists");
                 }
-                presentUser.setEmail(updatedUser.getEmail());
-            }
-            if (updatedUser.getPassword() != null) {
-                presentUser.setPassword(encodePassword(updatedUser.getPassword()));
-            }
-            if (updatedUser.getBio() != null) {
-                presentUser.setBio(updatedUser.getBio());
-            }
-            if (updatedUser.getImage() != null) {
-                presentUser.setImage(updatedUser.getImage());
-            }
-            userRepository.save(presentUser);
-            return Optional.of(presentUser);
-        } else {
-            throw new BadCredentialsException("Invalid user");
+            });
+            existingUser.setEmail(newEmail);
         }
     }
 }
