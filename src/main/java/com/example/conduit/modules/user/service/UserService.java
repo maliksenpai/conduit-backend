@@ -40,10 +40,30 @@ public class UserService {
         throw new BadCredentialsException("Invalid email or password");
     }
 
-    public void updateUser(User user) {
-        Optional<User> existingUser = userRepository.findById(user.getId());
+    public Optional<User> updateUser(User presentUser, User updatedUser) {
+        Optional<User> existingUser = userRepository.findById(presentUser.getId());
         if (existingUser.isPresent()) {
-            userRepository.save(user);
+            if (updatedUser.getUsername() != null) {
+                presentUser.setUsername(updatedUser.getUsername());
+            }
+            if (updatedUser.getEmail() != null) {
+                Optional<User> userWithEmail = userRepository.findByEmail(updatedUser.getEmail());
+                if (userWithEmail.isPresent() && !userWithEmail.get().getId().equals(presentUser.getId())) {
+                    throw new BadCredentialsException("Email already exists");
+                }
+                presentUser.setEmail(updatedUser.getEmail());
+            }
+            if (updatedUser.getPassword() != null) {
+                presentUser.setPassword(encodePassword(updatedUser.getPassword()));
+            }
+            if (updatedUser.getBio() != null) {
+                presentUser.setBio(updatedUser.getBio());
+            }
+            if (updatedUser.getImage() != null) {
+                presentUser.setImage(updatedUser.getImage());
+            }
+            userRepository.save(presentUser);
+            return Optional.of(presentUser);
         } else {
             throw new BadCredentialsException("Invalid user");
         }

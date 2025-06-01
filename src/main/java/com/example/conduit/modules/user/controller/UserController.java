@@ -4,6 +4,7 @@ import com.example.conduit.modules.user.dto.UserResponse;
 import com.example.conduit.modules.user.model.User;
 import com.example.conduit.modules.user.repository.UserRepository;
 import com.example.conduit.modules.user.service.UserService;
+import com.example.conduit.shared.dto.ErrorObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -53,20 +55,22 @@ public class UserController {
             if (user.isPresent()) {
                 User presentUser = user.get();
                 User updatedUser = userResponse.getUser();
-                if (updatedUser.getUsername() != null) {
-                    presentUser.setUsername(updatedUser.getUsername());
+                Optional<User> newUser = userService.updateUser(presentUser, updatedUser);
+                if (newUser.isPresent()) {
+                    userResponse.setUser(user.get());
+                    return new ResponseEntity<>(userResponse, HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
                 }
-                if (updatedUser.getEmail() != null) {
-                    presentUser.setEmail(updatedUser.getEmail());
-                }
-                userService.updateUser(presentUser);
-                userResponse.setUser(user.get());
-                return new ResponseEntity<>(userResponse, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            UserResponse response = new UserResponse();
+            ErrorObject errorObject = new ErrorObject();
+            errorObject.setBody(List.of(e.getMessage()));
+            response.setErrors(errorObject);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
