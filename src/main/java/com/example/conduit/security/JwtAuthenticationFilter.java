@@ -1,5 +1,6 @@
 package com.example.conduit.security;
 
+import com.example.conduit.modules.user.service.CustomUserDetailService;
 import com.example.conduit.shared.GenericConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,9 +21,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -48,8 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
 
         try {
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                token = authHeader.substring(7);
+            if (authHeader != null && authHeader.startsWith("Token ")) {
+                token = authHeader.substring(6);
                 if (jwtUtil.validateToken(token)) {
                     username = jwtUtil.extractUsername(token);
                 }
@@ -60,9 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var authToken = new UsernamePasswordAuthenticationToken(username, null, null);
+            var userDetails = userDetailsService.loadUserByUsername(username);
+            var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
+            logger.info("UserDetails: " + userDetails);
+            logger.info("Authorities: " + userDetails.getAuthorities());
+            logger.info("AuthToken: " + authToken);
+            logger.info("SecurityContext Authentication: " + SecurityContextHolder.getContext().getAuthentication());
         }
 
         filterChain.doFilter(request, response);

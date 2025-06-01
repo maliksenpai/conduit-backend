@@ -39,4 +39,13 @@ public class UserService {
         }
         throw new BadCredentialsException("Invalid email or password");
     }
+
+    public void updateUser(User user) {
+        Optional<User> existingUser = userRepository.findById(user.getId());
+        if (existingUser.isPresent()) {
+            userRepository.save(user);
+        } else {
+            throw new BadCredentialsException("Invalid user");
+        }
+    }
 }
