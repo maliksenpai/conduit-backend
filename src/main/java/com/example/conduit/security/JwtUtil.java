@@ -3,6 +3,8 @@ package com.example.conduit.security;
 import com.example.conduit.modules.user.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
     @Value("${jwt.secret}")
     private String secret;
 
@@ -40,6 +43,7 @@ public class JwtUtil {
                     .getSubject();
 
         } catch (Exception e) {
+            log.warn(e.getMessage());
             return null;
         }
     }
@@ -48,7 +52,8 @@ public class JwtUtil {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
+            log.warn(e.getMessage());
             return false;
         }
     }
