@@ -17,6 +17,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "Slug cannot be empty")
     private String slug;
     @Column(unique = true, nullable = false)
     @NotBlank(message = "Title cannot be empty")
@@ -31,7 +32,18 @@ public class Article {
     private Instant updatedAt;
     @Transient
     private Boolean favorited;
-    private Number favoritesCount;
+    private int favoritesCount;
     @Embedded
     private Author author;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

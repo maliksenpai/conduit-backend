@@ -55,7 +55,7 @@ public class ArticleController {
     }
 
     @PutMapping("/{slug}")
-    public ResponseEntity<ArticleDTO> updateArticle(@PathVariable String slug, @RequestBody ArticleDTO articleDTO) {
+    public ResponseEntity<ArticleDTO> updateArticle(@PathVariable String slug, @Valid @RequestBody ArticleDTO articleDTO) {
         try {
             ArticleDTO updatedArticle = articleService.updateArticle(articleDTO.getArticle(), slug);
             return ResponseEntity.ok(updatedArticle);

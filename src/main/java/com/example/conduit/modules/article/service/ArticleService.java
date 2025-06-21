@@ -36,8 +36,6 @@ public class ArticleService {
     public ArticleDTO createArticle(Article article) {
         try {
             ArticleDTO articleDTO = new ArticleDTO();
-            article.setCreatedAt(Instant.now());
-            article.setUpdatedAt(Instant.now());
             article.setFavoritesCount(0);
             article.setSlug(StringUtils.getSlugTitle(article.getTitle()));
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -50,7 +48,6 @@ public class ArticleService {
                         .username(userPresent.getUsername())
                         .image(userPresent.getImage())
                         .bio(userPresent.getBio())
-                        .following(false)
                         .build();
                 article.setAuthor(author);
             } else {
@@ -65,6 +62,13 @@ public class ArticleService {
     }
 
     public ArticleDTO updateArticle(Article updatedArticle, String slug) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        Optional<User> user = this.userRepository.findByEmail(userDetails.getUsername());
+        if (user.isEmpty() || !updatedArticle.getAuthor().getUsername().equals(user.get().getUsername())) {
+            throw new BadCredentialsException("Unauthorized to update this article");
+        }
+
         Optional<Article> currentArticle = this.articleRepository.findBySlug(slug);
         if (currentArticle.isPresent()) {
             Article presentArticle = currentArticle.get();
@@ -76,7 +80,7 @@ public class ArticleService {
             ObjectUtils.updateFieldIfPresent(updatedArticle.getDescription(), presentArticle::setDescription);
             return new ArticleDTO(this.articleRepository.save(presentArticle));
         } else {
-            throw new BadCredentialsException("Invalid slug");
+            throw new IllegalArgumentException("Article not found with slug: " + slug);
         }
     }
 }
