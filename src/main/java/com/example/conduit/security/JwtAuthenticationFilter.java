@@ -31,10 +31,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
+        String method = request.getMethod();
         // Check if the request path is in the list of public endpoints
         for (String endpoint: GenericConstants.PUBLIC_ENDPOINTS) {
             if (path.equals(endpoint)) {
                 return true; // Do not filter this request
+            }
+        }
+        if("GET".equalsIgnoreCase(method)) {
+            for (String endpoint : GenericConstants.PUBLIC_GET_ENDPOINTS) {
+                if (path.equals(endpoint)) {
+                    return true;
+                }
             }
         }
         return super.shouldNotFilter(request);

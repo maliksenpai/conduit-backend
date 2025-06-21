@@ -2,13 +2,13 @@ package com.example.conduit.modules.user.service;
 
 import com.example.conduit.modules.user.model.User;
 import com.example.conduit.modules.user.repository.UserRepository;
+import com.example.conduit.shared.utils.ObjectUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Service
 public class UserService {
@@ -44,22 +44,17 @@ public class UserService {
     public Optional<User> updateUser(User presentUser, User updatedUser) {
         return userRepository.findById(presentUser.getId())
                 .map(existingUser -> {
-                    updateFieldIfPresent(updatedUser.getUsername(), existingUser::setUsername);
+                    ObjectUtils.updateFieldIfPresent(updatedUser.getUsername(), existingUser::setUsername);
                     updateEmailIfValid(updatedUser.getEmail(), existingUser);
-                    updateFieldIfPresent(updatedUser.getPassword(),
+                    ObjectUtils.updateFieldIfPresent(updatedUser.getPassword(),
                             pwd -> existingUser.setPassword(encodePassword(pwd)));
-                    updateFieldIfPresent(updatedUser.getBio(), existingUser::setBio);
-                    updateFieldIfPresent(updatedUser.getImage(), existingUser::setImage);
+                    ObjectUtils.updateFieldIfPresent(updatedUser.getBio(), existingUser::setBio);
+                    ObjectUtils.updateFieldIfPresent(updatedUser.getImage(), existingUser::setImage);
 
                     return userRepository.save(existingUser);
                 });
     }
 
-    private <T> void updateFieldIfPresent(T value, Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
-    }
 
     private void updateEmailIfValid(String newEmail, User existingUser) {
         if (newEmail != null && !newEmail.equals(existingUser.getEmail())) {
