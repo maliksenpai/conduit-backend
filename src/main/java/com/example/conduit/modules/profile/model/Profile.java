@@ -1,4 +1,4 @@
-package com.example.conduit.modules.article.model;
+package com.example.conduit.modules.profile.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;
@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Author {
+public class Profile {
     private String username;
     private String bio;
     private String image;
