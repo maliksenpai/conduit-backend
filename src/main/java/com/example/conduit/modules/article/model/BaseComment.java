@@ -22,7 +22,7 @@ import java.time.Instant;
 public class BaseComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @NotBlank(message = "Body cannot be empty")
     private String body;
     private Instant createdAt;

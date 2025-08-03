@@ -6,6 +6,7 @@ import com.example.conduit.modules.profile.model.Profile;
 import com.example.conduit.modules.profile.repository.FollowRepository;
 import com.example.conduit.modules.user.model.User;
 import com.example.conduit.modules.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +37,7 @@ public class ProfileService {
         }
     }
 
+    @Transactional
     public Profile followProfileWithUsername(String username) {
         Optional<User> followedUser = userRepository.findByUsername(username);
         if (followedUser.isEmpty()) {
@@ -58,6 +60,7 @@ public class ProfileService {
         return articleMapper.userToProfile(followedUser.get());
     }
 
+    @Transactional
     public Profile unfollowUser(String username) {
         Optional<User> followedUser = userRepository.findByUsername(username);
         if (followedUser.isEmpty()) {

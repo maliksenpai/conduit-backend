@@ -6,7 +6,7 @@ import com.example.conduit.shared.GenericRepository;
 
 import java.util.Optional;
 
-public interface FollowRepository extends GenericRepository<FollowRelation, Integer> {
-    boolean existsByFollowingUser_IdAndFollowedUser_Id(Integer followingUserId, Integer followedUserId);
+public interface FollowRepository extends GenericRepository<FollowRelation, Long> {
+    boolean existsByFollowingUser_IdAndFollowedUser_Id(Long followingUser_id, Long followedUser_id);
     Optional<FollowRelation> findByFollowingUserAndFollowedUser(User followingUser, User followedUser);
 }

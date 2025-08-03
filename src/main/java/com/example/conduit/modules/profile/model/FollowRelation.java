@@ -12,11 +12,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "follow_relation")
+@Table(name = "follow_relation", uniqueConstraints = @UniqueConstraint(columnNames = {"following_user_id", "followed_user_id"}))
 public class FollowRelation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "following_user_id", nullable = false)

@@ -40,12 +40,7 @@ public class ArticleMapper {
 
     public Article articleDataToArticle(ArticleData articleData) {
         User user = articleData.getAuthor();
-        Profile profile = Profile.builder()
-                .image(user.getImage())
-                .username(user.getUsername())
-                .following(false)
-                .bio(user.getBio())
-                .build();
+        Profile profile = userToProfile(user);
         return Article.builder()
                 .id(articleData.getId())
                 .body(articleData.getBody())
@@ -64,7 +59,7 @@ public class ArticleMapper {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         Optional<User> currentUser = userRepository.findByEmail(userDetails.getUsername());
-        boolean isFollowing = followRepository.existsByFollowingUser_IdAndFollowedUser_Id(currentUser.get().getId(), user.getId());
+        boolean isFollowing = currentUser.filter(value -> followRepository.existsByFollowingUser_IdAndFollowedUser_Id(value.getId(), user.getId())).isPresent();
         return Profile
                 .builder()
                 .username(user.getUsername())

@@ -62,7 +62,7 @@ public class CommentService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         Optional<User> user = userRepository.findByEmail(userDetails.getUsername());
-        Optional<CommentData> currentComment = commentRepository.findById(Integer.parseInt(commentId));
+        Optional<CommentData> currentComment = commentRepository.findById(Long.parseLong(commentId));
         Optional<ArticleData> currentArticle = articleRepository.findBySlug(slug);
         if (currentArticle.isEmpty()) {
             throw new IllegalArgumentException("Article not found with slug: " + slug);

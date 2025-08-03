@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class GeneralLogger {
-    Logger logger = LoggerFactory.getLogger(GeneralLogger.class);
+    private static final Logger logger = LoggerFactory.getLogger(GeneralLogger.class);
 
     @Before("execution(* com.example.conduit.modules..service..*.get*(..)) ||" +
     "execution(* com.example.conduit.modules..service..*.create*(..)) ||" +

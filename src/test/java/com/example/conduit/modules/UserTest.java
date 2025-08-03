@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserTest {
-    private final User userTest = new User(7, "maliksenpai6", "malik6@hotmail.com", "123123", "", "", "");
+    private final User userTest = new User(7L, "maliksenpai6", "malik6@hotmail.com", "123123", "", "", "");
 
     @InjectMocks
     private UserService userService;
@@ -42,9 +42,9 @@ public class UserTest {
 
     @Test
     void shouldLoginUser() {
-        User wrongUser = new User(7, "maliksenpai6", "malik6@hotmail.com", "345678", "", "", "");
+        User wrongUser = new User(7L, "maliksenpai6", "malik6@hotmail.com", "345678", "", "", "");
         assertThrows(BadCredentialsException.class, () -> userService.loginUser(wrongUser));
-        User storedUser = new User(7, "maliksenpai6", "malik6@hotmail.com", "123123", "", "", "");
+        User storedUser = new User(7L, "maliksenpai6", "malik6@hotmail.com", "123123", "", "", "");
         storedUser.setPassword(userService.encodePassword(storedUser.getPassword()));
         when(userRepository.findByEmail(userTest.getEmail())).thenReturn(Optional.of(storedUser));
         Optional<User> trueLoginAttempt = userService.loginUser(userTest);
@@ -53,11 +53,11 @@ public class UserTest {
 
     @Test
     void shouldUpdateUser() {
-        User updatedUser = new User(7, "maliksenpai7", "malik6@hotmail.com", "123123", "", "", "");
+        User updatedUser = new User(7L, "maliksenpai7", "malik6@hotmail.com", "123123", "", "", "");
         when(userRepository.findById(userTest.getId())).thenReturn(Optional.of(userTest));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         Optional<User> returnedUser = userService.updateUser(userTest, updatedUser);
         assertTrue(returnedUser.isPresent());
-        assertEquals(returnedUser.get().getUsername(), userTest.getUsername());
+        assertEquals(returnedUser.get().getUsername(), updatedUser.getUsername());
     }
 }
