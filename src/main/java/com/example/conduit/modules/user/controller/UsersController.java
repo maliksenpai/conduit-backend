@@ -4,6 +4,7 @@ import com.example.conduit.modules.user.dto.UserResponse;
 import com.example.conduit.modules.user.model.User;
 import com.example.conduit.modules.user.service.UserService;
 import com.example.conduit.security.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "User")
 public class UsersController {
 
     private final UserService userService;

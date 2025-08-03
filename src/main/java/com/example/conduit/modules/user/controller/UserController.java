@@ -5,6 +5,7 @@ import com.example.conduit.modules.user.model.User;
 import com.example.conduit.modules.user.repository.UserRepository;
 import com.example.conduit.modules.user.service.UserService;
 import com.example.conduit.shared.dto.ErrorObject;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
+@Tag(name = "User")
 public class UserController {
 
     private final UserRepository userRepository;
